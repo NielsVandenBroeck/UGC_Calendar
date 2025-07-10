@@ -5,9 +5,9 @@ import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
-first_name = 'Niels'
+first_name = 'All'
 last_name = ''
-path = 'Uurroosters/Uurrooster februari 2025.xlsm'
+path = 'Uurroosters/Uurrooster julii 2025.xlsm'
 
 wb_obj = openpyxl.load_workbook(path, data_only=True)
 
@@ -89,9 +89,9 @@ def getDatesOfPerson():
                 endTimeColleague = sheet.cell(row=colleague + 1, column=col).value
                 if startTimeColleague is None:
                     continue
-                if str(endTimeColleague) == '18:00:00' and str(startTime) == '18:30:00':
+                if str(endTimeColleague) in ['13:00:00', '17:30:00', '18:00:00']  and str(startTime) == '18:30:00':
                     continue
-                if str(endTime) == '18:00:00' and str(startTimeColleague) == '18:30:00':
+                if str(endTime) in ['13:00:00', '17:30:00', '18:00:00'] and str(startTimeColleague) == '18:30:00':
                     continue
                 if sheet.cell(row=colleague + 5, column=col).value == "VIP":
                     name += ' (vip)'
@@ -111,7 +111,7 @@ def getAllWorkingPeople():
                 endDate = datetime.datetime.combine(date, endTime)
                 colleagues = ''
                 for colleague in range(1, sheet.max_row + 1):
-                    name = sheet.cell(row=colleague, column=2).value
+                    name = str(sheet.cell(row=colleague, column=2).value)
                     if name is None or sheet.cell(row=colleague, column=1).value is None or isinstance(name, datetime.time):
                         continue
                     startTimeColleague = sheet.cell(row=colleague, column=col).value
