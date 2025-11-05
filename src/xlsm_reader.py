@@ -4,10 +4,12 @@ from CalendarAPI import createEvent, createCalendar, deleteCalendar
 import warnings
 import json
 import time
+from datetime import time
+
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
-path = '../Uurroosters/Uurrooster sep 2025.xlsm'
+path = '../Uurroosters/Uurrooster  november 2025.xlsm'
 
 wb_obj = openpyxl.load_workbook(path, data_only=True)
 
@@ -53,6 +55,9 @@ def processShiftsOfColleague(name):
         print("Calender Ids file not found")
         return
 
+    # if name in calendar_ids:
+    #     return
+
     if name not in calendar_ids:
         try:
             cal_id = createCalendar(name)
@@ -73,33 +78,40 @@ def processShiftsOfColleague(name):
 
         # Search rows for Person
         personRow = None
-        for row in range(1, sheet.max_row + 1):
-            try:
-                row_name_value = sheet.cell(row=row, column=2).value + " " + sheet.cell(row=row, column=1).value
-            except TypeError:
-                continue
-            if row_name_value == name:
-                print(f"Found person: {name} on row {row}")
-                personRow = row
-                break
+        if name != "All":
+            for row in range(1, sheet.max_row + 1):
+                try:
+                    row_name_value = sheet.cell(row=row, column=2).value + " " + sheet.cell(row=row, column=1).value
+                except TypeError:
+                    continue
+                if row_name_value == name:
+                    print(f"Found person: {name} on row {row}")
+                    personRow = row
+                    break
 
-        if personRow is None:
-            warnings.warn(f"{name} not found in {sheet.title}")
-            continue
+            if personRow is None:
+                warnings.warn(f"{name} not found in {sheet.title}")
+                continue
 
         # Get columns with associated dates colleague works
         dates = {}
         for col in range(2, sheet.max_column+1):
             if type(sheet.cell(row=4, column=col).value) is datetime.datetime:
-                if sheet.cell(row=personRow, column=col).value is not None:
+                if name == "All" or sheet.cell(row=personRow, column=col).value is not None:
                     dates[col] = sheet.cell(row=4, column=col).value.replace(year=2025)
 
         # get exact times of events
         for col in dates:
-            startTime = sheet.cell(row=personRow, column=col).value
+            if name == "All":
+                startTime = time(2, 0)
+            else:
+                startTime = sheet.cell(row=personRow, column=col).value
             startDate = datetime.datetime.combine(dates[col], startTime)
 
-            endTime = sheet.cell(row=personRow + 1, column=col).value
+            if name == "All":
+                endTime = time(3, 0)
+            else:
+                endTime = sheet.cell(row=personRow + 1, column=col).value
             endDate = datetime.datetime.combine(dates[col], endTime)
 
             if endDate < startDate:
@@ -125,7 +137,7 @@ def processShiftsOfColleague(name):
                 if noteColleague is not None:
                     colleagues_info += " (" + str(noteColleague) + ")"
                 colleagues_info += ",\n"
-            time.sleep(0.1)
+            # time.sleep(0.1)
             createEvent(startDate, endDate, cal_id, colleagues_info)
 
 def retrieveColleagues():
@@ -150,10 +162,12 @@ def removeCalendars():
         json.dump(calendar_ids, f, indent=4)
 
 if __name__ == '__main__':
-    removeCalendars()
-    processShiftsOfColleague("Niels Van den Broeck")
+    # removeCalendars()
+    # processShiftsOfColleague("Niels Van den Broeck")
 
     # colleagues = retrieveColleagues()
     # for colleague in colleagues:
     #     processShiftsOfColleague(colleague)
+
+    processShiftsOfColleague("All")
     #getAllWorkingPeople()
