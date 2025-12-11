@@ -9,7 +9,7 @@ from datetime import time
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
-path = '../Uurroosters/Uurrooster  november 2025.xlsm'
+path = '../Uurroosters/Uurrooster januari 2026.xlsm'
 
 wb_obj = openpyxl.load_workbook(path, data_only=True)
 
@@ -98,7 +98,7 @@ def processShiftsOfColleague(name):
         for col in range(2, sheet.max_column+1):
             if type(sheet.cell(row=4, column=col).value) is datetime.datetime:
                 if name == "All" or sheet.cell(row=personRow, column=col).value is not None:
-                    dates[col] = sheet.cell(row=4, column=col).value.replace(year=2025)
+                    dates[col] = sheet.cell(row=4, column=col).value.replace(year=2026)
 
         # get exact times of events
         for col in dates:
@@ -165,9 +165,9 @@ if __name__ == '__main__':
     # removeCalendars()
     # processShiftsOfColleague("Niels Van den Broeck")
 
-    # colleagues = retrieveColleagues()
-    # for colleague in colleagues:
-    #     processShiftsOfColleague(colleague)
+    colleagues = retrieveColleagues()
+    for colleague in colleagues:
+        processShiftsOfColleague(colleague)
 
     processShiftsOfColleague("All")
     #getAllWorkingPeople()
